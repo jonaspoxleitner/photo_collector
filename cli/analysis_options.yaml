@@ -1,0 +1,19 @@
+analyzer:
+  exclude:
+    - "**/*.freezed.dart"
+    - "**/*.g.dart"
+    - lib/l10n/**
+    - lib/util/assets/**
+    - lib/util/rest_lient/demo_rest_client.dart
+
+include: package:lints/recommended.yaml
+
+linter:
+  rules:
+    - always_use_package_imports
+    - directives_ordering
+    - prefer_expression_function_bodies
+    - unawaited_futures
+
+formatter:
+  page_width: 120

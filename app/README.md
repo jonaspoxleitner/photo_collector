@@ -1,17 +1,48 @@
-# app
+# app — photo_collector guest app
 
-A new Flutter project.
+Static Flutter Web app that lets event guests upload photos and videos
+directly to S3-compatible object storage — no backend, no login. Event
+configuration arrives via the `?d=` token in the QR code URL.
 
-## Getting Started
+## Commands
 
-This project is a starting point for a Flutter application.
+All commands run through the repository FVM installation from this
+directory:
 
-A few resources to get you started if this is your first Flutter project:
+```sh
+fvm flutter pub get                                        # install dependencies
+fvm flutter pub run build_runner build --delete-conflicting-outputs  # codegen
+fvm flutter analyze                                        # static analysis
+fvm flutter test                                           # unit and widget tests
+fvm flutter run -d chrome --web-port 5000                  # local dev server
+fvm flutter build web --release                            # production build
+```
 
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
+Or via the root Makefile: `make app-start`, `make app-deploy`.
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## Local development with an event token
+
+Run the dev server on **port 5000** (as `make app-start` does): the bucket
+CORS configuration allows the dev origin `http://localhost:5000`, so uploads
+against a real event bucket only work from that origin. Other ports are
+fine for pure UI work with a fake configuration.
+
+The app expects a full QR URL of the form `{base-url}/?d={base64url-json}`.
+Example tokens live in `../test_fixtures/event_token_v1.json` (placeholder
+credentials only). Launch Chrome with a fixture token by opening
+`http://localhost:5000/?d=<token>` after `make app-start`.
+A missing or malformed token renders the controlled invalid-config screen.
+
+## Release build and deployment
+
+`fvm flutter build web --release` writes deployable static artifacts to
+`build/web/`. From the repo root, `make app-deploy` builds and deploys via
+Firebase Hosting (overridable through `APP_DEPLOY_CMD`) — see
+`../docs/deployment.md`.
+
+## Localization
+
+The app supports exactly English (`en`) and German (`de`). Strings live in
+`lib/l10n/app_en.arb` / `lib/l10n/app_de.arb`; generated code lands in
+`lib/l10n/generated/`. The initial locale follows the device/browser
+language, falling back to English for unsupported locales.

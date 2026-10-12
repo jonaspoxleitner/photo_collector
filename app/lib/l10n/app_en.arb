@@ -1,0 +1,95 @@
+{
+  "@@locale": "en",
+  "appTitle": "Photo Collector",
+  "@appTitle": {
+    "description": "Application title shown in the browser tab."
+  },
+  "landingTitle": "Share your photos",
+  "@landingTitle": {
+    "description": "Title of the landing screen."
+  },
+  "landingEventIntro": "Add your favorite photos and videos — straight from your phone, no app install, no account.",
+  "@landingEventIntro": {
+    "description": "Intro line on the landing screen."
+  },
+  "guestNameLabel": "Your name (optional)",
+  "@guestNameLabel": {
+    "description": "Label of the optional guest-name input."
+  },
+  "guestNameHint": "e.g. Anna Smith",
+  "@guestNameHint": {
+    "description": "Hint text inside the optional guest-name input."
+  },
+  "guestNameOptionalHint": "Leave it empty if you prefer to stay anonymous.",
+  "@guestNameOptionalHint": {
+    "description": "Explanatory text below the guest-name input."
+  },
+  "selectFilesButton": "Select photos and videos",
+  "@selectFilesButton": {
+    "description": "Button that opens the native file picker."
+  },
+  "preparingFilesWaiting": "Waiting for the file picker…",
+  "@preparingFilesWaiting": {
+    "description": "Shown below the select button while the native file picker is open."
+  },
+  "cancelPreparingButton": "Cancel",
+  "@cancelPreparingButton": {
+    "description": "Button that abandons a stuck or slow file-preparation wait on the landing screen."
+  },
+  "preparingFilesProgress": "Preparing file {done} of {total}…",
+  "@preparingFilesProgress": {
+    "description": "Shown while picked files are being read into memory before upload starts.",
+    "placeholders": {
+      "done": {"type": "int", "example": "3"},
+      "total": {"type": "int", "example": "5"}
+    }
+  },
+  "uploadProgressSummary": "{done} of {total} uploaded",
+  "@uploadProgressSummary": {
+    "description": "Summary line of the inline upload status on the landing screen.",
+    "placeholders": {
+      "done": {"type": "int", "example": "3"},
+      "total": {"type": "int", "example": "5"}
+    }
+  },
+  "uploadFailuresSummary": "{failed} of {total} uploads failed — you can retry below.",
+  "@uploadFailuresSummary": {
+    "description": "Single failure line below the inline upload status on the landing screen.",
+    "placeholders": {
+      "failed": {"type": "int", "example": "1"},
+      "total": {"type": "int", "example": "5"}
+    }
+  },
+  "retryFailedButton": "Retry failed",
+  "@retryFailedButton": {
+    "description": "Button that re-uploads only the failed files."
+  },
+  "thanksTitle": "Thank you",
+  "@thanksTitle": {
+    "description": "Title of the thank-you screen."
+  },
+  "thanksMessage": "Thank you for sharing your photos and videos! ❤️",
+  "@thanksMessage": {
+    "description": "Main message of the thank-you screen."
+  },
+  "thanksDeliveredHint": "Everything arrived safely. The host will take care of the memories.",
+  "@thanksDeliveredHint": {
+    "description": "Secondary message of the thank-you screen."
+  },
+  "thanksPrivacyNote": "Your uploads are stored privately and are only visible to the host. The name you entered labels your upload folder and is visible to the host as well. The event storage is deleted after the event.",
+  "@thanksPrivacyNote": {
+    "description": "Privacy note on the thank-you screen; must match the policy documented in docs/security-model.md."
+  },
+  "uploadMoreButton": "Upload more photos",
+  "@uploadMoreButton": {
+    "description": "Button on the thank-you screen that starts a new batch."
+  },
+  "invalidConfigTitle": "Invalid event link",
+  "@invalidConfigTitle": {
+    "description": "Title shown when the event configuration token is missing or malformed."
+  },
+  "invalidConfigMessage": "This event link is missing or invalid. Please scan the event QR code again or ask the host for a new link.",
+  "@invalidConfigMessage": {
+    "description": "Message shown when the event configuration token is missing or malformed."
+  }
+}

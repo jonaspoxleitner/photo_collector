@@ -3,3 +3,9 @@
 
 # Firebase CLI
 .firebase/
+
+# Config
+.env
+
+# macOS
+.DS_Store

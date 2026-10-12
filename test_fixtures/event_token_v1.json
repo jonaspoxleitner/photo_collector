@@ -1,0 +1,43 @@
+{
+  "version": 1,
+  "baseUrl": "https://photos.example.com/",
+  "cases": [
+    {
+      "name": "aws-s3",
+      "payload": {
+        "k": "AKIAEXAMPLE00000001",
+        "s": "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY",
+        "b": "wedding-20261025",
+        "r": "eu-central-1"
+      },
+      "token": "eyJrIjoiQUtJQUVYQU1QTEUwMDAwMDAwMSIsInMiOiJ3SmFsclhVdG5GRU1JL0s3TURFTkcvYlB4UmZpQ1lFWEFNUExFS0VZIiwiYiI6IndlZGRpbmctMjAyNjEwMjUiLCJyIjoiZXUtY2VudHJhbC0xIn0",
+      "url": "https://photos.example.com/?d=eyJrIjoiQUtJQUVYQU1QTEUwMDAwMDAwMSIsInMiOiJ3SmFsclhVdG5GRU1JL0s3TURFTkcvYlB4UmZpQ1lFWEFNUExFS0VZIiwiYiI6IndlZGRpbmctMjAyNjEwMjUiLCJyIjoiZXUtY2VudHJhbC0xIn0",
+      "expected": {
+        "accessKeyId": "AKIAEXAMPLE00000001",
+        "secretKey": "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY",
+        "bucket": "wedding-20261025",
+        "region": "eu-central-1",
+        "endpoint": null
+      }
+    },
+    {
+      "name": "custom-endpoint",
+      "payload": {
+        "k": "MINIOEXAMPLEKEY00001",
+        "s": "minioExampleSecretKey0000000000000000001",
+        "b": "birthday-20260814",
+        "r": "us-east-1",
+        "ep": "https://minio.example.com:9000"
+      },
+      "token": "eyJrIjoiTUlOSU9FWEFNUExFS0VZMDAwMDEiLCJzIjoibWluaW9FeGFtcGxlU2VjcmV0S2V5MDAwMDAwMDAwMDAwMDAwMDAwMSIsImIiOiJiaXJ0aGRheS0yMDI2MDgxNCIsInIiOiJ1cy1lYXN0LTEiLCJlcCI6Imh0dHBzOi8vbWluaW8uZXhhbXBsZS5jb206OTAwMCJ9",
+      "url": "https://photos.example.com/?d=eyJrIjoiTUlOSU9FWEFNUExFS0VZMDAwMDEiLCJzIjoibWluaW9FeGFtcGxlU2VjcmV0S2V5MDAwMDAwMDAwMDAwMDAwMDAwMSIsImIiOiJiaXJ0aGRheS0yMDI2MDgxNCIsInIiOiJ1cy1lYXN0LTEiLCJlcCI6Imh0dHBzOi8vbWluaW8uZXhhbXBsZS5jb206OTAwMCJ9",
+      "expected": {
+        "accessKeyId": "MINIOEXAMPLEKEY00001",
+        "secretKey": "minioExampleSecretKey0000000000000000001",
+        "bucket": "birthday-20260814",
+        "region": "us-east-1",
+        "endpoint": "https://minio.example.com:9000"
+      }
+    }
+  ]
+}

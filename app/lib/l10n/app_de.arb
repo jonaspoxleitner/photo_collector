@@ -1,0 +1,95 @@
+{
+  "@@locale": "de",
+  "appTitle": "Photo Collector",
+  "@appTitle": {
+    "description": "Application title shown in the browser tab."
+  },
+  "landingTitle": "Teile deine Fotos",
+  "@landingTitle": {
+    "description": "Title of the landing screen."
+  },
+  "landingEventIntro": "Füge deine schönsten Fotos und Videos hinzu — direkt vom Handy, ohne App, ohne Konto.",
+  "@landingEventIntro": {
+    "description": "Intro line on the landing screen."
+  },
+  "guestNameLabel": "Dein Name (optional)",
+  "@guestNameLabel": {
+    "description": "Label of the optional guest-name input."
+  },
+  "guestNameHint": "z. B. Anna Schmidt",
+  "@guestNameHint": {
+    "description": "Hint text inside the optional guest-name input."
+  },
+  "guestNameOptionalHint": "Lass das Feld leer, wenn du anonym bleiben möchtest.",
+  "@guestNameOptionalHint": {
+    "description": "Explanatory text below the guest-name input."
+  },
+  "selectFilesButton": "Fotos und Videos auswählen",
+  "@selectFilesButton": {
+    "description": "Button that opens the native file picker."
+  },
+  "preparingFilesWaiting": "Warte auf die Dateiauswahl…",
+  "@preparingFilesWaiting": {
+    "description": "Shown below the select button while the native file picker is open."
+  },
+  "cancelPreparingButton": "Abbrechen",
+  "@cancelPreparingButton": {
+    "description": "Button that abandons a stuck or slow file-preparation wait on the landing screen."
+  },
+  "preparingFilesProgress": "Bereite Datei {done} von {total} vor…",
+  "@preparingFilesProgress": {
+    "description": "Shown while picked files are being read into memory before upload starts.",
+    "placeholders": {
+      "done": {"type": "int", "example": "3"},
+      "total": {"type": "int", "example": "5"}
+    }
+  },
+  "uploadProgressSummary": "{done} von {total} hochgeladen",
+  "@uploadProgressSummary": {
+    "description": "Summary line of the inline upload status on the landing screen.",
+    "placeholders": {
+      "done": {"type": "int", "example": "3"},
+      "total": {"type": "int", "example": "5"}
+    }
+  },
+  "uploadFailuresSummary": "{failed} von {total} Uploads sind fehlgeschlagen — du kannst sie unten erneut versuchen.",
+  "@uploadFailuresSummary": {
+    "description": "Single failure line below the inline upload status on the landing screen.",
+    "placeholders": {
+      "failed": {"type": "int", "example": "1"},
+      "total": {"type": "int", "example": "5"}
+    }
+  },
+  "retryFailedButton": "Fehlgeschlagene erneut versuchen",
+  "@retryFailedButton": {
+    "description": "Button that re-uploads only the failed files."
+  },
+  "thanksTitle": "Danke",
+  "@thanksTitle": {
+    "description": "Title of the thank-you screen."
+  },
+  "thanksMessage": "Danke, dass du deine Fotos und Videos teilst! ❤️",
+  "@thanksMessage": {
+    "description": "Main message of the thank-you screen."
+  },
+  "thanksDeliveredHint": "Alles ist sicher angekommen. Der Gastgeber kümmert sich um die Erinnerungen.",
+  "@thanksDeliveredHint": {
+    "description": "Secondary message of the thank-you screen."
+  },
+  "thanksPrivacyNote": "Deine Uploads werden privat gespeichert und sind nur für den Gastgeber sichtbar. Der von dir eingegebene Name kennzeichnet deinen Upload-Ordner und ist ebenfalls für den Gastgeber sichtbar. Der Event-Speicher wird nach dem Event gelöscht.",
+  "@thanksPrivacyNote": {
+    "description": "Privacy note on the thank-you screen; must match the policy documented in docs/security-model.md."
+  },
+  "uploadMoreButton": "Weitere Fotos hochladen",
+  "@uploadMoreButton": {
+    "description": "Button on the thank-you screen that starts a new batch."
+  },
+  "invalidConfigTitle": "Ungültiger Event-Link",
+  "@invalidConfigTitle": {
+    "description": "Title shown when the event configuration token is missing or malformed."
+  },
+  "invalidConfigMessage": "Dieser Event-Link fehlt oder ist ungültig. Bitte scanne den Event-QR-Code erneut oder frage den Gastgeber nach einem neuen Link.",
+  "@invalidConfigMessage": {
+    "description": "Message shown when the event configuration token is missing or malformed."
+  }
+}
