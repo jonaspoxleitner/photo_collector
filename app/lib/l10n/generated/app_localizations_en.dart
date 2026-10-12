@@ -58,7 +58,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get thanksTitle => 'Thank you';
 
   @override
-  String get thanksMessage => 'Thank you for sharing your photos and videos! ❤️';
+  String get thanksMessage => 'Thank you for sharing your photos and videos!';
 
   @override
   String get thanksDeliveredHint => 'Everything arrived safely. The host will take care of the memories.';

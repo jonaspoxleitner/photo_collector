@@ -68,7 +68,7 @@
   "@thanksTitle": {
     "description": "Title of the thank-you screen."
   },
-  "thanksMessage": "Thank you for sharing your photos and videos! ❤️",
+  "thanksMessage": "Thank you for sharing your photos and videos!",
   "@thanksMessage": {
     "description": "Main message of the thank-you screen."
   },

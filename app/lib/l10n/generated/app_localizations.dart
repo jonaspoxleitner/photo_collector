@@ -179,7 +179,7 @@ abstract class AppLocalizations {
   /// Main message of the thank-you screen.
   ///
   /// In en, this message translates to:
-  /// **'Thank you for sharing your photos and videos! ❤️'**
+  /// **'Thank you for sharing your photos and videos!'**
   String get thanksMessage;
 
   /// Secondary message of the thank-you screen.

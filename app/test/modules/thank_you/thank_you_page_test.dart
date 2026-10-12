@@ -15,7 +15,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('Thank you'), findsOneWidget);
-      expect(find.text('Thank you for sharing your photos and videos! ❤️'), findsOneWidget);
+      expect(find.text('Thank you for sharing your photos and videos!'), findsOneWidget);
       expect(
         find.text(
           'Everything arrived safely. '
@@ -33,7 +33,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('Danke'), findsOneWidget);
-      expect(find.text('Danke, dass du deine Fotos und Videos teilst! ❤️'), findsOneWidget);
+      expect(find.text('Danke, dass du deine Fotos und Videos teilst!'), findsOneWidget);
       expect(
         find.text(
           'Alles ist sicher angekommen. '
