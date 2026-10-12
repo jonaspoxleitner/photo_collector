@@ -1,7 +1,7 @@
 import 'dart:io';
 
 import 'package:args/args.dart';
-import 'package:args/command_runner.dart';
+import 'package:cli/src/bucket_config.dart';
 import 'package:cli/src/heart_frame.dart';
 import 'package:cli/src/heart_mask.dart';
 import 'package:cli/src/runner.dart';
@@ -17,24 +17,10 @@ const HeartFrame _defaultFrame = HeartFrame();
 
 /// `qr-generate` subcommand: mints the event token and writes a print-ready
 /// heart-themed SVG QR card.
-class QrGenerateCommand extends Command<int> {
+class QrGenerateCommand extends CliCommand {
   QrGenerateCommand() {
+    addBucketOptions(argParser);
     argParser
-      ..addOption('access-key', help: 'S3 access key ID. Overrides ACCESS_KEY_ID.')
-      ..addOption(
-        'secret-key',
-        help:
-            'S3 secret access key (never printed). '
-            'Overrides SECRET_ACCESS_KEY.',
-      )
-      ..addOption('bucket', help: 'Event bucket name. Overrides BUCKET.')
-      ..addOption('region', help: 'S3 signing region. Overrides REGION.')
-      ..addOption(
-        'endpoint',
-        help:
-            'Optional custom S3-compatible endpoint URL. '
-            'Overrides ENDPOINT.',
-      )
       ..addOption(
         'base-url',
         help:
@@ -105,20 +91,18 @@ class QrGenerateCommand extends Command<int> {
   @override
   String? get usageFooter => 'Values are read from the root .env (via the Makefile) unless overridden by flags.';
 
-  @override
-  int run() => execute(argResults!);
-
   /// Generates the card for [args] and returns a process exit code instead of
   /// throwing.
   ///
   /// Configuration comes from the runner's [CliRunner.environment] (defaults
   /// to the process environment, which the root Makefile populates from the
   /// git-ignored `.env`); command-line flags take precedence over environment
-  /// values.
+  /// values. The bucket settings are resolved by [resolveBucketConfig].
   ///
   /// Normal output never contains secret values: the minted token and the
   /// guest URL (which embeds the credentials) are not printed.
-  int execute(ArgResults args) {
+  @override
+  Future<int> execute(ArgResults args) async {
     final cli = runner! as CliRunner;
     final env = cli.environment;
     final out = cli.out;
@@ -126,21 +110,12 @@ class QrGenerateCommand extends Command<int> {
 
     String? opt(String flag, String envName) => args.wasParsed(flag) ? args.option(flag) : env[envName];
 
-    final missing = <String>[];
-    String required(String flag, String envName) {
-      final value = opt(flag, envName)?.trim();
-      if (value == null || value.isEmpty) {
-        missing.add('--$flag (or set $envName in .env)');
-        return '';
-      }
-      return value;
-    }
-
-    final accessKey = required('access-key', 'ACCESS_KEY_ID');
-    final secretKey = required('secret-key', 'SECRET_ACCESS_KEY');
-    final bucket = required('bucket', 'BUCKET');
-    final region = required('region', 'REGION');
-    final baseUrl = required('base-url', 'BASE_URL');
+    final resolved = resolveBucketConfig(args, env);
+    final baseUrl = opt('base-url', 'BASE_URL')?.trim();
+    final missing = <String>[
+      ...resolved.missing,
+      if (baseUrl == null || baseUrl.isEmpty) missingSettingMessage('base-url', 'BASE_URL'),
+    ];
 
     if (missing.isNotEmpty) {
       err.writeln('Missing required configuration:');
@@ -150,8 +125,14 @@ class QrGenerateCommand extends Command<int> {
       err.writeln('Pass flags, or copy .env.example to .env at the repo root.');
       return ExitCodes.usage;
     }
+    final config = resolved.config!;
+    final accessKey = config.accessKeyId;
+    final secretKey = config.secretKey;
+    final bucket = config.bucket;
+    final region = config.region;
+    final endpoint = config.endpoint;
+    final baseUrlValue = baseUrl!;
 
-    final endpoint = opt('endpoint', 'ENDPOINT')?.trim();
     final output = opt('output', 'OUTPUT')?.trim().isNotEmpty == true ? opt('output', 'OUTPUT')!.trim() : 'card.svg';
     final title = opt('title', 'TITLE')?.trim().isNotEmpty == true ? opt('title', 'TITLE')!.trim() : null;
     final foreground = opt('foreground', 'FOREGROUND') ?? '#000000';
@@ -168,7 +149,11 @@ class QrGenerateCommand extends Command<int> {
         frame = null;
       } else if (heartMode == 'frame') {
         final scale = _parseFraction('heart-scale', args.option('heart-scale'), _defaultFrame.scaleBoost);
-        final padding = _parsePadding('heart-padding', args.option('heart-padding'), _defaultFrame.gapModules.toDouble());
+        final padding = _parsePadding(
+          'heart-padding',
+          args.option('heart-padding'),
+          _defaultFrame.gapModules.toDouble(),
+        );
         final vshift = _parsePadding('heart-vshift', args.option('heart-vshift'), _defaultFrame.verticalShift);
         frame = HeartFrame(gapModules: padding.round(), scaleBoost: scale, verticalShift: vshift);
         mask = null;
@@ -223,9 +208,9 @@ class QrGenerateCommand extends Command<int> {
         secretKey: secretKey,
         bucket: bucket,
         region: region,
-        endpoint: endpoint == null || endpoint.isEmpty ? null : endpoint,
+        endpoint: endpoint,
       );
-      url = buildEventUrl(baseUrl, token);
+      url = buildEventUrl(baseUrlValue, token);
     } on EventTokenFormatException catch (e) {
       err.writeln('Error: ${e.message}');
       return ExitCodes.usage;

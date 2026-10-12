@@ -9,6 +9,7 @@ dependencies:
   args: ^2.7.0
   path: ^1.9.0
   qr: ^4.0.0
+  s3_client: ^1.0.0
 
 dev_dependencies:
   lints: ^6.0.0

@@ -101,16 +101,59 @@ admin key.
 
 ## 5. Verify write-only behavior
 
-Console option: on the user's Permissions tab, tick the policy's checkbox to
-enable **Simulate**, then run:
+The CLI proves the put-only credential behaviorally against the real bucket:
+a signed `PutObject` must succeed, and a signed `GetObject` and a signed
+`DeleteObject` of the same probe object must both be denied. Only the guest
+credential is used — no admin key is involved.
 
-| Action | Resource | Expected |
-|---|---|---|
-| `s3:PutObject` | `arn:aws:s3:::<bucket>/photo.jpg` | allowed |
-| `s3:GetObject` / `s3:ListBucket` | bucket | denied |
+Copy `.env.example` to `.env` and fill in the step-4 values (and `REGION`) as
+in §7, then run from the repo root:
 
-The real end-to-end verification happens in the Phase 3 browser smoke test,
-which supersedes the simulator.
+```sh
+make cli-bucket-verify
+```
+
+The command exits `0` only when all three probes pass:
+
+| Output line | Meaning |
+|---|---|
+| `Write probe (PUT):  PASS (HTTP 200, ETag …)` | the key can upload |
+| `Read probe (GET):  PASS (HTTP 403 AccessDenied).` | the key cannot download |
+| `Delete probe (DELETE):  PASS (HTTP 403 AccessDenied).` | the key cannot delete |
+| `Put-only policy verified: …` | all probes passed |
+
+Any other outcome is a failure with an actionable hint:
+
+| Failure | Likely cause |
+|---|---|
+| `AccessDenied` on PUT | the inline policy still contains the literal `${BUCKET}` placeholder — re-apply `infra/s3-put-only-policy.template.json` with it substituted |
+| `301` / `PermanentRedirect` | `REGION` or `ENDPOINT` does not match the bucket |
+| `SignatureDoesNotMatch` | `SECRET_ACCESS_KEY` is wrong or does not belong to `ACCESS_KEY_ID` |
+| read probe succeeds (exit `65`) | the policy is wider than put-only — restrict it to `s3:PutObject` only |
+| delete probe succeeds (exit `65`) | the policy grants `DeleteObject` — restrict it to `s3:PutObject` only (the `infra/s3-put-only-policy.template.json` template grants `PutObject` only) |
+
+Exit codes: `0` all probes as expected, `64` bad/missing arguments, `65` the
+read or delete probe unexpectedly succeeded, `70` the write probe or the
+network failed. Flags (`--access-key`, `--secret-key`, `--bucket`, `--region`,
+`--endpoint`) override `.env` values; see `cli/README.md`.
+
+Notes:
+
+- The probe object (`.photo-collector-verify/<timestamp>.png`) **stays in the
+  bucket until teardown**. The put-only credential cannot delete it; emptying
+  the bucket in "After the event" removes it. If the delete probe unexpectedly
+  succeeds, the command notes that the permitted delete already removed the
+  probe object.
+- This verifies the IAM policy, not CORS. Presigned-URL requests are not
+  browser requests, so the cross-origin path is exercised only by the browser
+  smoke test in `docs/host-runbook.md` §1.11 — that test remains mandatory.
+- The console **Simulate** check is now optional. If you still want it, on the
+  user's Permissions tab tick the policy's checkbox and run:
+
+  | Action | Resource | Expected |
+  |---|---|---|
+  | `s3:PutObject` | `arn:aws:s3:::<bucket>/photo.jpg` | allowed |
+  | `s3:GetObject` / `s3:ListBucket` | bucket | denied |
 
 ## 6. Billing alert (mandatory, one-time)
 

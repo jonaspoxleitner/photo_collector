@@ -5,6 +5,8 @@
 /// and writes a print-ready SVG card.
 library;
 
+export 'src/bucket_config.dart';
+export 'src/bucket_verify_command.dart';
 export 'src/heart_mask.dart';
 export 'src/qr_generate_command.dart';
 export 'src/runner.dart';

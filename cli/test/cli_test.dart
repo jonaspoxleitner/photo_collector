@@ -28,53 +28,53 @@ void main() {
     'OUTPUT': outputPath,
   };
 
-  ({int code, String out, String err}) invoke(List<String> arguments, {Map<String, String>? env}) {
+  Future<({int code, String out, String err})> invoke(List<String> arguments, {Map<String, String>? env}) async {
     final out = StringBuffer();
     final err = StringBuffer();
-    final code = runCli(['qr-generate', ...arguments], environment: env, out: out, err: err);
+    final code = await runCli(['qr-generate', ...arguments], environment: env, out: out, err: err);
     return (code: code, out: out.toString(), err: err.toString());
   }
 
-  ({int code, String out, String err}) invokeTopLevel(List<String> arguments) {
+  Future<({int code, String out, String err})> invokeTopLevel(List<String> arguments) async {
     final out = StringBuffer();
     final err = StringBuffer();
-    final code = runCli(arguments, environment: const {}, out: out, err: err);
+    final code = await runCli(arguments, environment: const {}, out: out, err: err);
     return (code: code, out: out.toString(), err: err.toString());
   }
 
   group('subcommand dispatch', () {
-    test('qr-generate --help prints the full flag list and exits 0', () {
-      final result = invoke(['--help']);
+    test('qr-generate --help prints the full flag list and exits 0', () async {
+      final result = await invoke(['--help']);
       expect(result.code, ExitCodes.ok);
       expect(result.out, contains('Usage'));
       expect(result.out, contains('--access-key'));
       expect(result.out, contains('--heart-mode'));
     });
 
-    test('top-level --help shows the subcommand overview', () {
-      final result = invokeTopLevel(['--help']);
+    test('top-level --help shows the subcommand overview', () async {
+      final result = await invokeTopLevel(['--help']);
       expect(result.code, ExitCodes.ok);
       expect(result.out, contains('Available commands'));
       expect(result.out, contains('qr-generate'));
     });
 
-    test('no subcommand exits 64 with usage', () {
-      final result = invokeTopLevel([]);
+    test('no subcommand exits 64 with usage', () async {
+      final result = await invokeTopLevel([]);
       expect(result.code, ExitCodes.usage);
       expect(result.err, contains('no command given'));
       expect(result.err, contains('qr-generate'));
     });
 
-    test('unknown subcommand exits 64', () {
-      final result = invokeTopLevel(['bogus']);
+    test('unknown subcommand exits 64', () async {
+      final result = await invokeTopLevel(['bogus']);
       expect(result.code, ExitCodes.usage);
       expect(result.err, contains('bogus'));
     });
   });
 
   group('happy path', () {
-    test('writes the SVG card and prints the scan-test warning', () {
-      final result = invoke(['--no-preview'], env: fakeEnv());
+    test('writes the SVG card and prints the scan-test warning', () async {
+      final result = await invoke(['--no-preview'], env: fakeEnv());
 
       expect(result.code, ExitCodes.ok, reason: result.err);
       final file = File(outputPath);
@@ -91,18 +91,18 @@ void main() {
       expect(result.out, contains('dim light'));
     });
 
-    test('prints a terminal preview unless disabled', () {
-      final result = invoke([], env: fakeEnv());
+    test('prints a terminal preview unless disabled', () async {
+      final result = await invoke([], env: fakeEnv());
       expect(result.code, ExitCodes.ok, reason: result.err);
       expect(result.out, contains('█'));
 
-      final silent = invoke(['--no-preview'], env: fakeEnv());
+      final silent = await invoke(['--no-preview'], env: fakeEnv());
       expect(silent.out, isNot(contains('█')));
     });
 
-    test('never echoes secret values in normal output', () {
+    test('never echoes secret values in normal output', () async {
       final env = fakeEnv();
-      final result = invoke([], env: env);
+      final result = await invoke([], env: env);
       expect(result.code, ExitCodes.ok, reason: result.err);
       for (final secret in [env['SECRET_ACCESS_KEY']!, env['ACCESS_KEY_ID']!]) {
         expect(result.out, isNot(contains(secret)));
@@ -110,15 +110,20 @@ void main() {
       }
     });
 
-    test('accepts a custom endpoint and card title', () {
-      final result = invoke(['--endpoint', 'https://minio.example.com:9000', '--title', 'Wedding'], env: fakeEnv());
+    test('accepts a custom endpoint and card title', () async {
+      final result = await invoke([
+        '--endpoint',
+        'https://minio.example.com:9000',
+        '--title',
+        'Wedding',
+      ], env: fakeEnv());
       expect(result.code, ExitCodes.ok, reason: result.err);
       expect(result.out, contains('https://minio.example.com:9000'));
       expect(File(outputPath).readAsStringSync(), contains('>Wedding</text>'));
     });
 
-    test('reports the QR version and error correction level', () {
-      final result = invoke(['--no-preview'], env: fakeEnv());
+    test('reports the QR version and error correction level', () async {
+      final result = await invoke(['--no-preview'], env: fakeEnv());
       expect(result.code, ExitCodes.ok, reason: result.err);
       expect(result.out, contains('error correction level H'));
       expect(result.out, contains('version'));
@@ -126,15 +131,15 @@ void main() {
   });
 
   group('configuration precedence', () {
-    test('flags override environment values', () {
-      final result = invoke(['--bucket', 'flag-wins', '--no-preview'], env: fakeEnv());
+    test('flags override environment values', () async {
+      final result = await invoke(['--bucket', 'flag-wins', '--no-preview'], env: fakeEnv());
       expect(result.code, ExitCodes.ok, reason: result.err);
       expect(result.out, contains('flag-wins'));
       expect(result.out, isNot(contains('wedding-20261025')));
     });
 
-    test('flags alone are sufficient without any environment', () {
-      final result = invoke([
+    test('flags alone are sufficient without any environment', () async {
+      final result = await invoke([
         '--access-key',
         'AKIAEXAMPLE00000001',
         '--secret-key',
@@ -155,8 +160,8 @@ void main() {
   });
 
   group('validation and exit codes', () {
-    test('missing required options exit 64 with actionable messages', () {
-      final result = invoke([], env: const {});
+    test('missing required options exit 64 with actionable messages', () async {
+      final result = await invoke([], env: const {});
       expect(result.code, ExitCodes.usage);
       expect(result.err, contains('--access-key'));
       expect(result.err, contains('ACCESS_KEY_ID'));
@@ -165,68 +170,74 @@ void main() {
       expect(File(outputPath).existsSync(), isFalse);
     });
 
-    test('malformed flags exit 64', () {
-      final result = invoke(['--bogus'], env: fakeEnv());
+    test('malformed flags exit 64', () async {
+      final result = await invoke(['--bogus'], env: fakeEnv());
       expect(result.code, ExitCodes.usage);
       expect(result.err, contains('--bogus'));
     });
 
-    test('invalid colors exit 64 with an explanation', () {
-      final result = invoke(['--foreground', 'banana'], env: fakeEnv());
+    test('invalid colors exit 64 with an explanation', () async {
+      final result = await invoke(['--foreground', 'banana'], env: fakeEnv());
       expect(result.code, ExitCodes.usage);
       expect(result.err, contains('banana'));
     });
 
-    test('unusable contrast exits 65', () {
-      final result = invoke(['--foreground', '#101010', '--background', '#181818'], env: fakeEnv());
+    test('unusable contrast exits 65', () async {
+      final result = await invoke(['--foreground', '#101010', '--background', '#181818'], env: fakeEnv());
       expect(result.code, ExitCodes.data);
       expect(result.err, contains('contrast'));
     });
 
-    test('light-on-dark colors exit 65', () {
-      final result = invoke(['--foreground', '#ffffff', '--background', '#000000'], env: fakeEnv());
+    test('light-on-dark colors exit 65', () async {
+      final result = await invoke(['--foreground', '#ffffff', '--background', '#000000'], env: fakeEnv());
       expect(result.code, ExitCodes.data);
       expect(result.err, contains('lighter'));
     });
 
-    test('low-but-usable contrast warns on stderr but succeeds', () {
-      final result = invoke(['--foreground', '#808080', '--background', '#ffffff', '--no-preview'], env: fakeEnv());
+    test('low-but-usable contrast warns on stderr but succeeds', () async {
+      final result = await invoke([
+        '--foreground',
+        '#808080',
+        '--background',
+        '#ffffff',
+        '--no-preview',
+      ], env: fakeEnv());
       expect(result.code, ExitCodes.ok, reason: result.err);
       expect(result.err, contains('Warning'));
     });
 
-    test('invalid heart-mode exits 64', () {
-      final result = invoke(['--heart-mode', 'blob'], env: fakeEnv());
+    test('invalid heart-mode exits 64', () async {
+      final result = await invoke(['--heart-mode', 'blob'], env: fakeEnv());
       expect(result.code, ExitCodes.usage);
     });
 
-    test('invalid heart-scale exits 64', () {
+    test('invalid heart-scale exits 64', () async {
       for (final raw in ['0', '1.5', 'abc']) {
-        final result = invoke(['--heart-scale', raw], env: fakeEnv());
+        final result = await invoke(['--heart-scale', raw], env: fakeEnv());
         expect(result.code, ExitCodes.usage, reason: 'scale $raw');
         expect(result.err, contains('--heart-scale'));
       }
     });
 
-    test('frame mode is the default and leaves the QR code intact', () {
+    test('frame mode is the default and leaves the QR code intact', () async {
       final out = p.join(tempDir.path, 'card.svg');
-      final result = invoke(['--output', out, '--no-preview'], env: fakeEnv());
+      final result = await invoke(['--output', out, '--no-preview'], env: fakeEnv());
       expect(result.code, ExitCodes.ok, reason: result.err);
       expect(result.out, contains('Heart mode: frame'));
     });
 
-    test('cut mode is selectable and scan-test warning is printed', () {
+    test('cut mode is selectable and scan-test warning is printed', () async {
       final out = p.join(tempDir.path, 'card.svg');
-      final result = invoke(['--output', out, '--heart-mode', 'cut', '--no-preview'], env: fakeEnv());
+      final result = await invoke(['--output', out, '--heart-mode', 'cut', '--no-preview'], env: fakeEnv());
       expect(result.code, ExitCodes.ok, reason: result.err);
       expect(result.out, contains('Heart mode: cut'));
     });
 
-    test('none mode renders a plain QR card without a heart', () {
+    test('none mode renders a plain QR card without a heart', () async {
       final plainPath = p.join(tempDir.path, 'plain.svg');
       final framedPath = p.join(tempDir.path, 'framed.svg');
 
-      final plain = invoke(['--output', plainPath, '--heart-mode', 'none', '--no-preview'], env: fakeEnv());
+      final plain = await invoke(['--output', plainPath, '--heart-mode', 'none', '--no-preview'], env: fakeEnv());
       expect(plain.code, ExitCodes.ok, reason: plain.err);
       expect(plain.out, contains('Heart mode: none'));
       final plainSvg = File(plainPath).readAsStringSync();
@@ -234,28 +245,27 @@ void main() {
 
       // Frame mode grows the canvas so the decorative heart fits; none mode
       // must not.
-      final framed = invoke(['--output', framedPath, '--no-preview'], env: fakeEnv());
+      final framed = await invoke(['--output', framedPath, '--no-preview'], env: fakeEnv());
       expect(framed.code, ExitCodes.ok, reason: framed.err);
-      double svgWidth(String svg) =>
-          double.parse(RegExp(r'width="([0-9.]+)mm"').firstMatch(svg)!.group(1)!);
+      double svgWidth(String svg) => double.parse(RegExp(r'width="([0-9.]+)mm"').firstMatch(svg)!.group(1)!);
       expect(svgWidth(plainSvg), lessThan(svgWidth(File(framedPath).readAsStringSync())));
     });
 
-    test('invalid heart-padding exits 64', () {
-      final result = invoke(['--heart-padding', '-1'], env: fakeEnv());
+    test('invalid heart-padding exits 64', () async {
+      final result = await invoke(['--heart-padding', '-1'], env: fakeEnv());
       expect(result.code, ExitCodes.usage);
       expect(result.err, contains('--heart-padding'));
     });
 
-    test('unwritable output path exits nonzero', () {
+    test('unwritable output path exits nonzero', () async {
       final missing = p.join(tempDir.path, 'no-such-dir', 'card.svg');
-      final result = invoke(['--output', missing, '--no-preview'], env: {...fakeEnv(), 'OUTPUT': ''});
+      final result = await invoke(['--output', missing, '--no-preview'], env: {...fakeEnv(), 'OUTPUT': ''});
       expect(result.code, ExitCodes.ioErr);
       expect(result.err, contains(missing));
     });
 
-    test('--help exits 0 and prints usage', () {
-      final result = invoke(['--help'], env: const {});
+    test('--help exits 0 and prints usage', () async {
+      final result = await invoke(['--help'], env: const {});
       expect(result.code, ExitCodes.ok);
       expect(result.out, contains('Usage'));
       expect(result.out, contains('--access-key'));

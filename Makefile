@@ -11,6 +11,7 @@ APP_DEPLOY_CMD ?= firebase deploy --only hosting
 
 # Flags of the cli CLI (see cli/README.md); they override .env values:
 #   make cli-qr-generate QR_ARGS='--access-key ... --secret-key ... --bucket ... --region ... --base-url ... --output card.svg'
+#   make cli-bucket-verify QR_ARGS='--bucket ... --region ...'
 # Without QR_ARGS, values are read from the root .env (see .env.example).
 QR_ARGS ?=
 
@@ -29,7 +30,7 @@ HEART_ARGS := $(if $(HEART_MODE),--heart-mode $(HEART_MODE),) $(if $(HEART_SCALE
 -include .env
 export
 
-.PHONY: app-start app-deploy format cli-qr-generate cli-qr-generate-heart .check-qr-config
+.PHONY: app-start app-deploy format cli-qr-generate cli-qr-generate-heart cli-bucket-verify .check-qr-config
 
 app-start: ## Run the guest app
 	cd $(APP_DIR) && $(FLUTTER) run --web-port=53618
@@ -51,8 +52,9 @@ format: ## Code formatting
 .check-qr-config:
 	@if [ -z "$(QR_ARGS)" ] && [ ! -f .env ]; then \
 		echo "Missing configuration."; \
-		echo "Create .env from .env.example, or pass flags directly:"; \
+		echo "Create .env from .env.example, or pass flags directly via QR_ARGS, e.g.:"; \
 		echo "  make cli-qr-generate QR_ARGS='--access-key ... --secret-key ... --bucket ... --region ... --base-url ... --output card.svg'"; \
+		echo "  make cli-bucket-verify QR_ARGS='--access-key ... --secret-key ... --bucket ... --region ...'"; \
 		exit 2; \
 	fi
 
@@ -61,3 +63,6 @@ cli-qr-generate: .check-qr-config ## QR card without heart (plain); QR_ARGS flag
 
 cli-qr-generate-heart: .check-qr-config ## QR card with heart decoration; tune via HEART_SCALE/HEART_PADDING/...
 	cd $(CLI_DIR) && $(DART) run bin/cli.dart qr-generate $(QR_ARGS) $(HEART_ARGS)
+
+cli-bucket-verify: .check-qr-config ## Verify the put-only credential can write to and cannot read from the bucket
+	cd $(CLI_DIR) && $(DART) run bin/cli.dart bucket-verify $(QR_ARGS)

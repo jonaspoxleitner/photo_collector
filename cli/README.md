@@ -1,11 +1,14 @@
 # cli — photo_collector host CLI
 
-Host-side CLI for photo_collector; it currently provides QR card generation,
-with more subcommands to come. The `qr-generate` subcommand mints the `?d=`
-event token (the guest app decodes the same format), generates a compact QR
-code with error-correction level H, clips a heart-shaped silhouette out of
-the module grid (finder patterns and separators always stay intact), and
-writes a print-ready, pure-vector SVG card.
+Host-side CLI for photo_collector. It provides two subcommands:
+
+- `qr-generate` mints the `?d=` event token (the guest app decodes the same
+  format), generates a compact QR code with error-correction level H, clips a
+  heart-shaped silhouette out of the module grid (finder patterns and
+  separators always stay intact), and writes a print-ready, pure-vector SVG
+  card.
+- `bucket-verify` behaviorally proves that the guest (put-only) credential can
+  upload to and cannot read from or delete from the event bucket.
 
 This CLI is one step of the host workflow: bucket and IAM user creation,
 deployment, scan testing, and teardown live in
@@ -23,6 +26,9 @@ make cli-qr-generate
 
 # Or override individual values with flags:
 make cli-qr-generate QR_ARGS='--bucket wedding-20261025 --output card.svg'
+
+# Prove the put-only key against the real bucket before the event:
+make cli-bucket-verify
 ```
 
 Or directly:
@@ -32,6 +38,10 @@ fvm dart run bin/cli.dart qr-generate \
   --access-key ... --secret-key ... \
   --bucket wedding-20261025 --region eu-central-1 \
   --base-url https://photos.example.com --output card.svg
+
+fvm dart run bin/cli.dart bucket-verify \
+  --access-key ... --secret-key ... \
+  --bucket wedding-20261025 --region eu-central-1
 ```
 
 Or build a standalone binary from the same entrypoint:
@@ -82,6 +92,52 @@ always take precedence over environment values.
 - Secret values are never printed.
 - Exit codes: `0` success, `64` bad/missing arguments, `65` unusable input
   data (colors, overlong payload), `74` output write failure.
+
+## Verifying the bucket credential (`bucket-verify`)
+
+`bucket-verify` confirms that the per-event IAM key is genuinely put-only
+before guests depend on it. It uses only the guest credential — no admin key
+— and never prints a secret.
+
+It signs three requests against the real bucket:
+
+1. **Write probe.** A signed PUT of the bundled `assets/probe-icon.png` to a
+   timestamped key under `.photo-collector-verify/`. It must return `200`
+   with an `ETag`.
+2. **Read probe.** A signed GET of that same object. It must be denied with
+   `403 AccessDenied`; any 2xx means the policy is wider than put-only.
+3. **Delete probe.** A signed DELETE of that same object. It must be denied
+   with `403 AccessDenied`; any 2xx means the policy is wider than put-only
+   (S3 returns `204` for a permitted delete even when the key is absent, so
+   the status is a reliable discriminator). A permitted delete also removes
+   the probe object, which the command reports.
+
+```sh
+make cli-bucket-verify          # values from .env
+make cli-bucket-verify QR_ARGS='--bucket wedding-20261025 --region eu-central-1'
+```
+
+Flags (all required except `--endpoint`, and all overriding `.env`):
+
+| Flag           | Environment         | Required | Default |
+|----------------|---------------------|----------|---------|
+| `--access-key` | `ACCESS_KEY_ID`     | yes      | —       |
+| `--secret-key` | `SECRET_ACCESS_KEY` | yes      | —       |
+| `--bucket`     | `BUCKET`            | yes      | —       |
+| `--region`     | `REGION`            | yes      | —       |
+| `--endpoint`   | `ENDPOINT`          | no       | AWS S3  |
+| `--help`, `-h` | —                   | —        | —       |
+
+Exit codes: `0` all probes as expected, `64` bad/missing arguments, `65` the
+read or delete probe unexpectedly succeeded (policy is not put-only), `70` the
+write probe or the network failed. Failures print an actionable hint, e.g.
+`AccessDenied` on PUT usually means the IAM policy still contains the literal
+`${BUCKET}` placeholder.
+
+The probe object stays in the bucket until teardown emptying — the put-only
+credential cannot delete it. The command does **not** test CORS: presigned-URL
+requests are not browser requests, so keep the browser smoke test from
+[`../docs/host-runbook.md`](../docs/host-runbook.md) §1.11.
 
 ## Scan testing
 
