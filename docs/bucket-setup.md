@@ -55,8 +55,8 @@ Then S3 → bucket → **Permissions** → **Cross-origin resource sharing
 production placeholder origin with the project's origin:
 
 - Origins must match exactly: scheme included, no trailing slash.
-- Keep `http://localhost:5000` for local development (run Flutter with
-  `--web-port 5000` so the origin stays stable).
+- Keep `http://localhost:53618` for local development (run Flutter with
+  `--web-port 53618` so the origin stays stable).
 - `AllowedMethods` stays `PUT` only; `ExposeHeaders` stays `ETag`.
 
 ## 3. Per-event IAM user and inline policy

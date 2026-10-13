@@ -43,7 +43,7 @@ points at this event. Details: `docs/deployment.md`.
 1.4 **Configure bucket CORS.** Paste `infra/bucket-cors.json` into the
 bucket's CORS settings and **replace the production origin placeholder with
 the real app origin** (`https://<event-id>.web.app`, no trailing slash).
-Keep `http://localhost:5000` for local testing. Without this step every
+Keep `http://localhost:53618` for local testing. Without this step every
 browser upload fails.
 
 1.5 **Create the per-event IAM user** `photo-collector-<event-id>` with an

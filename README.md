@@ -28,7 +28,7 @@ Makefile          Operational shortcuts: app-start, app-deploy, cli-qr-generate,
 ## Quick start (host)
 
 ```sh
-make app-start                 # run the guest app in Chrome (port 5000, matches CORS dev origin)
+make app-start                 # run the guest app in Chrome (port 53618, matches CORS dev origin)
 make app-deploy                # build web release + firebase deploy (APP_DEPLOY_CMD overridable)
 make cli-qr-generate               # plain QR card (no heart) from .env values
 make cli-qr-generate QR_ARGS='--title "Anna & Ben" --output card.svg'   # flags override .env

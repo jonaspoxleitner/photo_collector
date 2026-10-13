@@ -80,8 +80,8 @@ match exactly (scheme included, no trailing slash).
 make app-start
 ```
 
-runs the app in Chrome on a **fixed port 5000**, which matches the
-`http://localhost:5000` dev origin in the bucket CORS configuration — local
+runs the app in Chrome on a **fixed port 53618**, which matches the
+`http://localhost:53618` dev origin in the bucket CORS configuration — local
 uploads against a real event bucket only work from that origin. Open the
-app with a token URL (`http://localhost:5000/?d=<token>`); placeholder
+app with a token URL (`http://localhost:53618/?d=<token>`); placeholder
 tokens for UI development live in `test_fixtures/event_token_v1.json`.

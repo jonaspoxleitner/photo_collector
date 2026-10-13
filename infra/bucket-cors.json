@@ -4,7 +4,7 @@
     "AllowedMethods": ["PUT"],
     "AllowedOrigins": [
       "https://REPLACE-WITH-PRODUCTION-ORIGIN.example",
-      "http://localhost:5000"
+      "http://localhost:53618"
     ],
     "ExposeHeaders": ["ETag"],
     "MaxAgeSeconds": 3600

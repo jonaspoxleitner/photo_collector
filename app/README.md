@@ -14,7 +14,7 @@ fvm flutter pub get                                        # install dependencie
 fvm flutter pub run build_runner build --delete-conflicting-outputs  # codegen
 fvm flutter analyze                                        # static analysis
 fvm flutter test                                           # unit and widget tests
-fvm flutter run -d chrome --web-port 5000                  # local dev server
+fvm flutter run -d chrome --web-port 53618                  # local dev server
 fvm flutter build web --release                            # production build
 ```
 
@@ -22,15 +22,15 @@ Or via the root Makefile: `make app-start`, `make app-deploy`.
 
 ## Local development with an event token
 
-Run the dev server on **port 5000** (as `make app-start` does): the bucket
-CORS configuration allows the dev origin `http://localhost:5000`, so uploads
+Run the dev server on **port 53618** (as `make app-start` does): the bucket
+CORS configuration allows the dev origin `http://localhost:53618`, so uploads
 against a real event bucket only work from that origin. Other ports are
 fine for pure UI work with a fake configuration.
 
 The app expects a full QR URL of the form `{base-url}/?d={base64url-json}`.
 Example tokens live in `../test_fixtures/event_token_v1.json` (placeholder
 credentials only). Launch Chrome with a fixture token by opening
-`http://localhost:5000/?d=<token>` after `make app-start`.
+`http://localhost:53618/?d=<token>` after `make app-start`.
 A missing or malformed token renders the controlled invalid-config screen.
 
 ## Release build and deployment

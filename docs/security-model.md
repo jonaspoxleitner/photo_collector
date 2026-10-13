@@ -26,7 +26,7 @@ These are properties of the implemented system, not aspirations:
 - **CORS restricts origins.** `infra/bucket-cors.json` permits `PUT` only,
   from exactly two origins: the production app origin (placeholder —
   must be replaced with the real deployed domain) and
-  `http://localhost:5000` for local development. `ETag` is exposed so the
+  `http://localhost:53618` for local development. `ETag` is exposed so the
   app can confirm uploads. No other methods are allowed cross-origin.
 - **Per-event infrastructure.** Bucket, hosting project, and IAM user are
   named after the event ID, created for one event, and deleted after it.
