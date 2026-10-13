@@ -91,5 +91,13 @@
   "invalidConfigMessage": "This event link is missing or invalid. Please scan the event QR code again or ask the host for a new link.",
   "@invalidConfigMessage": {
     "description": "Message shown when the event configuration token is missing or malformed."
+  },
+  "invalidConfigSetupHint": "Are you the host? Configure an event link by running the CLI QR-code generator from the photo_collector repository — it creates a QR card that guests scan to upload photos.",
+  "@invalidConfigSetupHint": {
+    "description": "Host-facing hint on the invalid event-link screen explaining how to configure a valid event link."
+  },
+  "invalidConfigSetupLinkLabel": "Setup instructions on GitHub",
+  "@invalidConfigSetupLinkLabel": {
+    "description": "Button label linking to the setup instructions in the photo_collector repository."
   }
 }

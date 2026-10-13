@@ -76,4 +76,11 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get invalidConfigMessage =>
       'This event link is missing or invalid. Please scan the event QR code again or ask the host for a new link.';
+
+  @override
+  String get invalidConfigSetupHint =>
+      'Are you the host? Configure an event link by running the CLI QR-code generator from the photo_collector repository — it creates a QR card that guests scan to upload photos.';
+
+  @override
+  String get invalidConfigSetupLinkLabel => 'Setup instructions on GitHub';
 }

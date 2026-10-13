@@ -211,6 +211,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'This event link is missing or invalid. Please scan the event QR code again or ask the host for a new link.'**
   String get invalidConfigMessage;
+
+  /// Host-facing hint on the invalid event-link screen explaining how to configure a valid event link.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you the host? Configure an event link by running the CLI QR-code generator from the photo_collector repository — it creates a QR card that guests scan to upload photos.'**
+  String get invalidConfigSetupHint;
+
+  /// Button label linking to the setup instructions in the photo_collector repository.
+  ///
+  /// In en, this message translates to:
+  /// **'Setup instructions on GitHub'**
+  String get invalidConfigSetupLinkLabel;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

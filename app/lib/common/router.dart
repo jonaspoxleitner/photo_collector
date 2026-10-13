@@ -1,3 +1,4 @@
+import 'package:app/common/url_opener.dart';
 import 'package:app/common/version_footer.dart';
 import 'package:app/l10n/generated/app_localizations.dart';
 import 'package:app/models/event_config.dart';
@@ -12,6 +13,10 @@ abstract final class AppRoutes {
   static const landing = '/';
   static const thanks = '/thanks';
 }
+
+/// Host setup instructions and the CLI QR-code generator, linked from the
+/// invalid-config screen.
+const setUpInstructionsUrl = 'https://github.com/jonaspoxleitner/photo_collector';
 
 /// Builds the guest-flow router with `/` and `/thanks`. Upload progress
 /// renders inline on the landing page; there is no dedicated upload route.
@@ -37,18 +42,42 @@ GoRouter createAppRouter({required EventConfig? eventConfig, FileSelector? fileS
 );
 
 /// Controlled screen shown when the `?d=` token is missing or malformed.
+///
+/// Besides the guest-facing message it shows a host-oriented setup hint and a
+/// link to the repository instructions. [openUrl] is a test seam; production
+/// opens the link in a new browser tab.
 class InvalidConfigScreen extends StatelessWidget {
-  const InvalidConfigScreen({super.key});
+  const InvalidConfigScreen({super.key, this.openUrl = openUrlInNewTab});
+
+  /// Opens [setUpInstructionsUrl]; injectable so widget tests can assert the
+  /// target URL without a browser.
+  final UrlOpener openUrl;
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
+    final theme = Theme.of(context);
     return Scaffold(
       appBar: AppBar(title: Text(l10n.invalidConfigTitle)),
       bottomNavigationBar: const VersionFooter(),
       body: Padding(
         padding: const EdgeInsets.all(24),
-        child: Center(child: Text(l10n.invalidConfigMessage)),
+        child: Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(l10n.invalidConfigMessage, textAlign: TextAlign.center),
+              const SizedBox(height: 24),
+              Text(
+                l10n.invalidConfigSetupHint,
+                textAlign: TextAlign.center,
+                style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.outline),
+              ),
+              const SizedBox(height: 8),
+              TextButton(onPressed: () => openUrl(setUpInstructionsUrl), child: Text(l10n.invalidConfigSetupLinkLabel)),
+            ],
+          ),
+        ),
       ),
     );
   }
